@@ -21,7 +21,7 @@ class CityCrawler(scrapy.Spider):
     current_result_page = 1 #the current results page the spider is crawling
     room_prices = {}
     current_pages = {}
-    base_url_rent = '.craigslist.org/search/roo?hasPic=1&min_price=2&max_price=5000&availabilityMode=0'
+    base_url_rent = '.craigslist.org/search/roo?hasPic=1&min_price=100&max_price=5000&availabilityMode=0'
     cities_USA = ['boston', 'chicago', 'miami', 'newjersey', 'neworleans', 'newyork', 'sfbayarea',
               'philadelphia', 'phoenix', 'portland', 'seattle', 'washington']
  #   cities_USA = ['neworleans']
