@@ -9,10 +9,10 @@ import scrapy
 from scrapy.item import Item, Field
 
 #Definition of city and the desired attributes
-#cost is overall Cost of Living obtained from indices on numbeo.com or data.bls.gov if i can figure it out
-#transport is the per capita ridership of public transport within a city
-#diversity is how spread out a population is across different 
-#artActivity is the size 
+#avg_cost and med_cost are the average and median (respectively) monthly rate for rooms on craigslist for a given city
+#transport_size is the per capita ridership of public transport within a city
+#transport_cost is the monthly cost of riding public transport in a city
+#diversity is how spread out a population is across different ethnic groups
 class City(Item):
     # define the fields for your item here like:
     name = Field()
