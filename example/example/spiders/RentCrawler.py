@@ -14,15 +14,15 @@ from example.items import City
 #chicago
 #phoenix
 
-class CityCrawler(scrapy.Spider):
-    name='citycrawler'
+class RentCrawler(scrapy.Spider):
+    name='rentcrawler'
     allowed_domains = ['craigslist.org']
     pages_to_scrape = 5 #the maximum amount of pages of results the spider will crawl
     current_result_page = 1 #the current results page the spider is crawling
     room_prices = {}
     current_pages = {}
     base_url_rent = '.craigslist.org/search/roo?hasPic=1&min_price=100&max_price=5000&availabilityMode=0'
-    cities_USA = ['boston', 'chicago', 'miami', 'newjersey', 'neworleans', 'newyork', 'sfbayarea',
+    cities_USA = ['atlanta', 'austin', 'boston', 'chicago', 'houston', 'miami', 'newjersey', 'neworleans', 'newyork', 'sfbayarea',
               'philadelphia', 'phoenix', 'portland', 'seattle', 'washington']
  #   cities_USA = ['neworleans']
     
@@ -33,7 +33,7 @@ class CityCrawler(scrapy.Spider):
             if city is 'sfbayarea':
                 url = 'https://' + city + '.craigslist.org/search/eby/roo?hasPic=1&min_price=2&max_price=5000&availabilityMode=0'
             elif city is 'newyork':
-                url = 'https://' + city + '.craigslist.org/search/brk/roo?hasPic=1&min_price=2&max_price=5000&availabilityMode=0'
+                url = 'https://' + city + '.craigslist.org/search/que/roo?hasPic=1&min_price=2&max_price=5000&availabilityMode=0'
             else:
                 url = 'https://' + city + self.base_url_rent
             yield scrapy.Request(url=url, callback=self.parse)
@@ -64,7 +64,6 @@ class CityCrawler(scrapy.Spider):
         item['avg_cost'] = self.avg_cost(sorted_list)
         item['med_cost'] = sorted_list[int(len(sorted_list)/2)]
         item['size'] = len(self.room_prices[city])
-        print(city + ' ' + str(sorted_list))
         return item
 
     #adds up every listing price and divides it by the total amount of listings gathered
