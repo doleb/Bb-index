@@ -13,6 +13,8 @@ from example.items import City
 #washington DC
 #chicago
 #phoenix
+#austin
+#houston
 
 class RentCrawler(scrapy.Spider):
     name='rentcrawler'
@@ -22,7 +24,7 @@ class RentCrawler(scrapy.Spider):
     room_prices = {}
     current_pages = {}
     base_url_rent = '.craigslist.org/search/roo?hasPic=1&min_price=100&max_price=5000&availabilityMode=0'
-    cities_USA = ['atlanta', 'austin', 'boston', 'chicago', 'houston', 'miami', 'newjersey', 'neworleans', 'newyork', 'sfbayarea',
+    cities_USA = ['atlanta', 'austin', 'boston', 'chicago', 'houston', 'miami', 'neworleans', 'newyork', 'sfbayarea',
               'philadelphia', 'phoenix', 'portland', 'seattle', 'washington']
  #   cities_USA = ['neworleans']
     
