@@ -1,14 +1,15 @@
-Atlanta
-Austin
-Boston
-Chicago
-Houston
-Miami
-New Orleans
-Queens
-Oakland
-Philadelphia
-Phoenix
-Portland
-Seattle
+Atlanta Georgia
+Austin Texas
+Boston Massachusetts
+Chicago Illinois
+Houston Texas
+Miami Florida
+New Orleans Louisiana
+Queens New York
+Oakland California
+Philadelphia Pennsylvania
+Phoenix Arizona
+Pittsburgh Pennsylvania
+Portland Oregon
+Seattle Washington
 Washington DC
