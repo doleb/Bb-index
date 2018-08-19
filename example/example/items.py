@@ -19,3 +19,4 @@ class City(Item):
     avg_cost = Field()
     med_cost = Field()
     size = Field()
+    diversity = Field()
