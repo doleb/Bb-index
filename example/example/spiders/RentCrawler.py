@@ -1,47 +1,35 @@
 import scrapy
+from selenium import webdriver
+import os
+import time
 from example.items import City
-
-#potential cities
-#philadelphia
-#seattle
-#portland
-#new orleans
-#boston
-#new york
-#miami
-#oakland
-#washington DC
-#chicago
-#phoenix
-#austin
-#houston
 
 class RentCrawler(scrapy.Spider):
     name='rentcrawler'
-    allowed_domains = ['craigslist.org']
+    allowed_domains = ['google.com', 'craigslist.org']
     pages_to_scrape = 5 #the maximum amount of pages of results the spider will crawl
     current_result_page = 1 #the current results page the spider is crawling
     room_prices = {}
     current_pages = {}
-    base_url_rent = '.craigslist.org/search/roo?hasPic=1&min_price=100&max_price=5000&availabilityMode=0'
-    cities_USA = ['atlanta', 'austin', 'boston', 'chicago', 'houston', 'miami', 'neworleans', 'newyork', 'sfbayarea',
-              'philadelphia', 'phoenix', 'portland', 'seattle', 'washington']
- #   cities_USA = ['neworleans']
-    
-    #creates a Scrapy request for each city in list cities_USA
-    #sfbayarea only checks east bay area, newyork only checks brooklyn area
-    def start_requests(self):
-        for city in self.cities_USA:
-            if city is 'sfbayarea':
-                url = 'https://' + city + '.craigslist.org/search/eby/roo?hasPic=1&min_price=2&max_price=5000&availabilityMode=0'
-            elif city is 'newyork':
-                url = 'https://' + city + '.craigslist.org/search/que/roo?hasPic=1&min_price=2&max_price=5000&availabilityMode=0'
-            else:
-                url = 'https://' + city + self.base_url_rent
-            yield scrapy.Request(url=url, callback=self.parse)
+    craigslist_url_extension = '?hasPic=1&min_price=100&max_price=5000&availabilityMode=0'
+    start_urls = []
+
+    def __init__(self):
+        self.driver = webdriver.Chrome()
+        self.driver.implicitly_wait(60)
+        for line in open(os.path.join(os.path.dirname(__file__), '..', 'city_names.txt')):
+            self.start_urls.append('https://cse.google.com/cse?q=craigslist+rooms+%s&cx=007479151798586256926:vc_was3sgg4' % line.rstrip())
+
+    def parse(self, response):
+        self.driver.get(response.url)
+        link = self.driver.find_element_by_xpath('//*[@id="___gcse_0"]/div/div/div/div[5]/div[2]/div/div/div[1]/div[1]/div[1]/div/a')
+        url = link.get_attribute('href')
+        time.sleep(1)
+        craigslist_url = url + self.craigslist_url_extension
+        yield scrapy.Request(url=craigslist_url, callback=self.parse_craigslist)
 
     #crawls each page from 1 to get_page_amt() and gathers all prices of room listings in a list for each respective city
-    def parse(self, response):
+    def parse_craigslist(self, response):
         city = response.xpath('//select[@id="areaAbb"]/option/text()').extract_first() #gets the city page this info parser is crawling
         last_page = self.get_page_amt(int(response.xpath('//span[@class="totalcount"]/text()').extract_first())/120.0) 
         if city not in self.room_prices:
@@ -53,7 +41,7 @@ class RentCrawler(scrapy.Spider):
             rel_page_url = response.xpath('//a[@class="button next"]/@href').extract_first()
             next_page = response.urljoin(rel_page_url)
             self.current_pages[city] += 1
-            yield scrapy.Request(url=next_page, callback=self.parse)
+            yield scrapy.Request(url=next_page, callback=self.parse_craigslist)
         else:
             yield self.parse_indetail(response)
 

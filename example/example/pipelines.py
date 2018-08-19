@@ -10,6 +10,7 @@ import pymongo
 
 class MongoPipeline(object):
 
+    #starts connection at 'localhost', creates mongo database and creates collection in created database 
     def __init__(self):
         connection = pymongo.MongoClient(settings['MONGODB_SERVER'],
         settings['MONGODB_PORT'])

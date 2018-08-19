@@ -1,0 +1,14 @@
+Atlanta
+Austin
+Boston
+Chicago
+Houston
+Miami
+New Orleans
+Queens
+Oakland
+Philadelphia
+Phoenix
+Portland
+Seattle
+Washington DC
