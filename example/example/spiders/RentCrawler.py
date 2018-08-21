@@ -53,7 +53,7 @@ class RentCrawler(scrapy.Spider):
         item['name'] = city
         item['avg_cost'] = self.avg_cost(sorted_list)
         item['med_cost'] = sorted_list[int(len(sorted_list)/2)]
-        item['size'] = len(self.room_prices[city])
+        item['listing_count'] = len(self.room_prices[city])
         return item
 
     #adds up every listing price and divides it by the total amount of listings gathered

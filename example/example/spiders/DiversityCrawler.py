@@ -7,7 +7,7 @@ from example.items import City
 #Groups as determined by City-Data.com are White, Black, Hispanic, Asian, Native American, Native Hawaiian/Pacific Islander, 2+ Races, and Other 
 class DiversityCrawler(scrapy.Spider):
     name = 'diversitycrawler'
-    allowed_urls = ['citydata.com']
+    allowed_domains = ['citydata.com']
     start_urls = []
 
     def __init__(self):
@@ -45,10 +45,10 @@ class DiversityCrawler(scrapy.Spider):
         if largest_demographic == 'White only':
             baseIndex *= 0.95
         elif largest_demographic == 'Hispanic':
-            baseIndex *= 10.25
+            baseIndex *= 1.25
         elif largest_demographic == 'Black only':
-            baseIndex *= 10.5
+            baseIndex *= 1.5
         elif largest_demographic == 'Asian only':
-            baseIndex *= 10.5
+            baseIndex *= 1.5
         return round(baseIndex, 2)
         
