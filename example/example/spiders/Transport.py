@@ -25,12 +25,13 @@ class TransportCrawler(scrapy.Spider):
             search_box.clear()
             search_box.send_keys(line.strip() + ' city')
             go_button.click()
-            time.sleep(5.5)
+            time.sleep(7.5)
             business_tab = self.driver.find_element_by_xpath('//*[@id="leftnav"]/a[3]')
             business_tab.click()
+            time.sleep(5.5)
             table_link = self.driver.find_element_by_xpath('//*[@id="cf-content"]/div[1]/div[2]/div/div[2]/ul/li[3]/div/a')
             table_link.click()
-            time.sleep(12)
+            time.sleep(10)
             self.extract_data(line.strip())
 
     #find and extract data for public transport ridership and car ridership
@@ -43,4 +44,5 @@ class TransportCrawler(scrapy.Spider):
         if transit_ridership > car_ridership:
             transport_index *= 1.25
         city['transport'] = transport_index
+        print(city)
         return city
