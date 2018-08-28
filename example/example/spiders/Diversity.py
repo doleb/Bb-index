@@ -1,6 +1,7 @@
 import scrapy
-import os
+from example.file_utils import CITY_LIST
 from example.items import City
+
 
 
 #gathers census data for individual cities and determines the "diversity" of a given city based on the distribution of a population across ethnic groups
@@ -9,9 +10,10 @@ class DiversityCrawler(scrapy.Spider):
     name = 'diversitycrawler'
     allowed_domains = ['citydata.com']
     start_urls = []
+    city_iter = iter(CITY_LIST)
 
     def __init__(self):
-        for line in open(os.path.join(os.path.dirname(__file__), '..', 'city_names.txt')):
+        for line in CITY_LIST:
             dashed = line.replace(' ', '-').strip()
             if 'DC' in line:
                 dashed = 'Washington-District-of-Columbia'
@@ -29,7 +31,11 @@ class DiversityCrawler(scrapy.Spider):
     #places extracted information into items 
     def make_item(self, response, percentages, races):
         item = City()
-        item['name'] = response.xpath('//*[@id="content"]/h1/span/text()').extract_first()
+        try:
+            city = next(self.city_iter)
+        except Exception as ex:
+            print('end of list')
+        item['name'] = city
         item['diversity'] = self.calculate_diversity(percentages, races)
         return item
 
@@ -43,12 +49,12 @@ class DiversityCrawler(scrapy.Spider):
                 largest_percentage = percentages[i]
         baseIndex = ((100.0/(len(percentages)-2))/largest_percentage)*100.0
         if largest_demographic == 'White only':
-            baseIndex *= 0.95
+            baseIndex *= 0.5
         elif largest_demographic == 'Hispanic':
             baseIndex *= 1.25
         elif largest_demographic == 'Black only':
             baseIndex *= 1.5
         elif largest_demographic == 'Asian only':
-            baseIndex *= 1.5
+            baseIndex *= 1.75
         return round(baseIndex, 2)
         

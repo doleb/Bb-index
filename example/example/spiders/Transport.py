@@ -1,6 +1,6 @@
 import scrapy
 from selenium import webdriver
-import os
+from example.file_utils import CITY_LIST
 import time
 from example.items import City
 
@@ -13,13 +13,14 @@ class TransportCrawler(scrapy.Spider):
     #start web driver
     def __init__(self):
         self.driver = webdriver.Chrome()
-        self.driver.implicitly_wait(30)
-        self.navigate_to_data()
+        self.driver.implicitly_wait(60)
+        self.start_urls.append('https://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml')
 
     #for each city in city_names.txt, navigate factfinder.census.gov to the city's transportation data table 
-    def navigate_to_data(self):
-        for line in open(os.path.join(os.path.dirname(__file__), '..', 'city_names.txt')):
-            self.driver.get('https://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml')
+    def parse(self, response):
+        print('******************************************************%s*****************************************' % CITY_LIST)
+        for line in CITY_LIST:
+            self.driver.get(response.url)
             search_box = self.driver.find_element_by_id('cfsearchtextboxmain')
             go_button = self.driver.find_element_by_xpath('//*[@id="cfmainsearchform"]/a')
             search_box.clear()
@@ -32,7 +33,7 @@ class TransportCrawler(scrapy.Spider):
             table_link = self.driver.find_element_by_xpath('//*[@id="cf-content"]/div[1]/div[2]/div/div[2]/ul/li[3]/div/a')
             table_link.click()
             time.sleep(10)
-            self.extract_data(line.strip())
+            yield self.extract_data(line.strip())
 
     #find and extract data for public transport ridership and car ridership
     def extract_data(self, city_name):
@@ -42,7 +43,6 @@ class TransportCrawler(scrapy.Spider):
         car_ridership = float(self.driver.find_element_by_xpath('//*[@id="data"]/tbody/tr[3]/td[1]').text.rstrip('%'))
         transport_index = transit_ridership
         if transit_ridership > car_ridership:
-            transport_index *= 1.25
-        city['transport'] = transport_index
-        print(city)
+            transport_index *= 1.75
+        city['transport'] = round(transport_index, 2)
         return city

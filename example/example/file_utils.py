@@ -1,0 +1,1 @@
+CITY_LIST = [line.strip() for line in open('city_names.txt')]

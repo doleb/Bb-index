@@ -1,8 +1,9 @@
 import scrapy
 from selenium import webdriver
-import os
+from example.file_utils import CITY_LIST
 import time
 from example.items import City
+
 
 class RentCrawler(scrapy.Spider):
     name='rentcrawler'
@@ -13,11 +14,12 @@ class RentCrawler(scrapy.Spider):
     current_pages = {}
     craigslist_url_extension = '?hasPic=1&min_price=100&max_price=5000&availabilityMode=0'
     start_urls = []
+    city_iter = iter(CITY_LIST)
 
     def __init__(self):
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(60)
-        for line in open(os.path.join(os.path.dirname(__file__), '..', 'city_names.txt')):
+        for line in CITY_LIST:
             self.start_urls.append('https://cse.google.com/cse?q=craigslist+rooms+%s&cx=007479151798586256926:vc_was3sgg4' % line.rstrip())
 
     def parse(self, response):
@@ -48,12 +50,15 @@ class RentCrawler(scrapy.Spider):
     #parses the price data gathered into Scrapy items
     def parse_indetail(self, response):
         item = City()
-        city = response.xpath('//select[@id="areaAbb"]/option/text()').extract_first()
-        sorted_list = self.sort_prices(city)
+        try:
+            city = next(self.city_iter)
+        except Exception as ex:
+            print('end of list')
+        sorted_list = self.sort_prices(response.xpath('//select[@id="areaAbb"]/option/text()').extract_first())
         item['name'] = city
         item['avg_cost'] = self.avg_cost(sorted_list)
         item['med_cost'] = sorted_list[int(len(sorted_list)/2)]
-        item['listing_count'] = len(self.room_prices[city])
+        item['listing_count'] = len(self.room_prices[response.xpath('//select[@id="areaAbb"]/option/text()').extract_first()])
         return item
 
     #adds up every listing price and divides it by the total amount of listings gathered
