@@ -36,10 +36,18 @@ class DiversityCrawler(scrapy.Spider):
         except Exception as ex:
             print('end of list')
         item['name'] = city
-        item['diversity'] = self.calculate_diversity(percentages, races)
+        for i in range(len(percentages)):
+            race = str(races[i]).split(' ')[0].lower()
+            percent = percentages[i]
+            if race == 'native':
+                race = 'pacific'
+            elif race == 'two':
+                race = 'other'
+            item[race] = percent
+            
         return item
 
-    #calculates overall diversity score for a cities population
+    #calculates overall diversity score for a cities population and returns score and largest demographic
     def calculate_diversity(self, percentages, races):
         largest_demographic = ''
         largest_percentage = 0.0
@@ -51,10 +59,10 @@ class DiversityCrawler(scrapy.Spider):
         if largest_demographic == 'White only':
             baseIndex *= 0.5
         elif largest_demographic == 'Hispanic':
-            baseIndex *= 1.25
+            baseIndex *= 1.5
         elif largest_demographic == 'Black only':
             baseIndex *= 1.5
         elif largest_demographic == 'Asian only':
-            baseIndex *= 1.75
-        return round(baseIndex, 2)
+            baseIndex *= 1.5
+        return [round(baseIndex, 2), largest_demographic]
         

@@ -12,9 +12,9 @@ class RentCrawler(scrapy.Spider):
     current_result_page = 1 #the current results page the spider is crawling
     room_prices = {}
     current_pages = {}
+    craigslist_page_names = {}
     craigslist_url_extension = '?hasPic=1&min_price=100&max_price=5000&availabilityMode=0'
     start_urls = []
-    city_iter = iter(CITY_LIST)
 
     def __init__(self):
         self.driver = webdriver.Chrome()
@@ -27,11 +27,13 @@ class RentCrawler(scrapy.Spider):
         link = self.driver.find_element_by_xpath('//*[@id="___gcse_0"]/div/div/div/div[5]/div[2]/div/div/div[1]/div[1]/div[1]/div/a')
         url = link.get_attribute('href')
         time.sleep(1)
+        self.craigslist_page_names[self.get_craigslist_page_city(url)] = str(response.url).split('=')[1].split('&')[0].split('+',2)[2].replace('%20', ' ')
         craigslist_url = url + self.craigslist_url_extension
         yield scrapy.Request(url=craigslist_url, callback=self.parse_craigslist)
 
     #crawls each page from 1 to get_page_amt() and gathers all prices of room listings in a list for each respective city
     def parse_craigslist(self, response):
+        self.logger.info('You are now crawling: %s', response.url)
         city = response.xpath('//select[@id="areaAbb"]/option/text()').extract_first() #gets the city page this info parser is crawling
         last_page = self.get_page_amt(int(response.xpath('//span[@class="totalcount"]/text()').extract_first())/120.0) 
         if city not in self.room_prices:
@@ -50,16 +52,16 @@ class RentCrawler(scrapy.Spider):
     #parses the price data gathered into Scrapy items
     def parse_indetail(self, response):
         item = City()
-        try:
-            city = next(self.city_iter)
-        except Exception as ex:
-            print('end of list')
+        city = self.get_craigslist_page_city(response.url)
         sorted_list = self.sort_prices(response.xpath('//select[@id="areaAbb"]/option/text()').extract_first())
-        item['name'] = city
+        item['name'] = self.craigslist_page_names[city]
         item['avg_cost'] = self.avg_cost(sorted_list)
         item['med_cost'] = sorted_list[int(len(sorted_list)/2)]
         item['listing_count'] = len(self.room_prices[response.xpath('//select[@id="areaAbb"]/option/text()').extract_first()])
         return item
+
+    def get_craigslist_page_city(self, url):
+        return str(url).split('.')[0].split('/')[2]
 
     #adds up every listing price and divides it by the total amount of listings gathered
     def avg_cost(self, prices):
